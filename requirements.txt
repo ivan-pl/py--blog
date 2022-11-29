@@ -1,0 +1,7 @@
+greenlet==2.0.1
+mypy==0.991
+mypy-extensions==0.4.3
+psycopg2==2.9.5
+SQLAlchemy==1.4.44
+tomli==2.0.1
+typing_extensions==4.4.0
