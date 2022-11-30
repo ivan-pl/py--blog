@@ -11,6 +11,11 @@ session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
 
+class InvalidUserName(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -24,11 +29,11 @@ class User(Base):
 
 def create_user(session: SessionType, name):
     user = User(name=name)
-    print("user", user)
+    is_user_exists = session.query(User).filter_by(name=name).first()
+    if is_user_exists:
+        raise InvalidUserName("User with the same name already exists")
     session.add(user)
-    print("user added", user)
     session.commit()
-    print("user saved", user)
     return user
 
 
