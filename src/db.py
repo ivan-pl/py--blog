@@ -21,14 +21,15 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(32), unique=True, nullable=False)
+    password = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
 
     def __repr__(self):
         return f"User(id={self.id!r}, name={self.name!r}, created_at={self.created_at!r})"
 
 
-def create_user(session: SessionType, name):
-    user = User(name=name)
+def create_user(session: SessionType, name, password):
+    user = User(name=name, password=password)
     is_user_exists = session.query(User).filter_by(name=name).first()
     if is_user_exists:
         raise InvalidUserName("User with the same name already exists")

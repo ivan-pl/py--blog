@@ -14,13 +14,14 @@ def session() -> SessionType:
 
 def test_create_user(session):
     username = "Ivan"
+    password = "1234"
     assert session.query(User).filter_by(name=username).first() is None
-    user = create_user(session, username)
+    user = create_user(session, username, password)
     assert session.query(User).filter_by(name=username).one() == user
     with raises(InvalidUserName):
-        create_user(session, username)
+        create_user(session, username, password)
 
     username2 = "Pavel"
-    user2 = create_user(session, username2)
+    user2 = create_user(session, username2, password)
     assert session.query(User).filter_by(name=username2).one() == user2
     assert session.query(User).count() == 2
