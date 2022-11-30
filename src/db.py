@@ -93,6 +93,10 @@ def get_user_posts(session: SessionType, user: User):
     return session.query(Comment).filter_by(author=user).all()
 
 
+def get_all_posts(session: SessionType):
+    return session.query(Post).all()
+
+
 def main():
     Base.metadata.drop_all()
     Base.metadata.create_all()
