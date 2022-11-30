@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Table, Integer, String, Boolean, Text, DateTime, func
-from sqlalchemy.orm import declarative_base, Session as SessionType, sessionmaker, scoped_session
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, func, ForeignKey
+from sqlalchemy.orm import declarative_base, Session as SessionType, sessionmaker, scoped_session, relationship
 
 DB_URL = "postgresql+psycopg2://user:userpass@localhost/blog"
 DB_ECHO = False
@@ -28,6 +28,19 @@ class User(Base):
         return f"User(id={self.id!r}, name={self.name!r}, created_at={self.created_at!r})"
 
 
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String(96), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
+
+    def __repr__(self):
+        return f"Post(id={self.id!r}, title={self.title!r}, created_at:{self.created_at!r}"
+
+
 def create_user(session: SessionType, name, password):
     user = User(name=name, password=password)
     is_user_exists = session.query(User).filter_by(name=name).first()
@@ -38,12 +51,20 @@ def create_user(session: SessionType, name, password):
     return user
 
 
+def create_post(session: SessionType, author: User, title, content):
+    post = Post(author_id=author.id, title=title, content=content)
+    session.add(post)
+    session.commit()
+    return post
+
+
 def main():
     Base.metadata.drop_all()
     Base.metadata.create_all()
 
     session: SessionType = Session()
-    create_user(session, "Ivan")
+    user = create_user(session, "Ivan", "1234")
+    post = create_post(session, user, "Title", "Lorem ipsum")
     session.close()
 
 
