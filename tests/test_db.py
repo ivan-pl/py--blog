@@ -30,4 +30,4 @@ def test_create_post(session):
     user = create_user(session, "Ivan", "1234")
     assert session.query(Post).count() == 0
     post = create_post(session, user, "Title", "Lorem ipsum")
-    assert session.query(Post).filter_by(author_id=user.id).one() == post
+    assert session.query(Post).filter_by(author=user).one() == post

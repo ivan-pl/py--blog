@@ -24,6 +24,8 @@ class User(Base):
     password = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
 
+    posts = relationship("Post", back_populates="author")
+
     def __repr__(self):
         return f"User(id={self.id!r}, name={self.name!r}, created_at={self.created_at!r})"
 
@@ -36,6 +38,8 @@ class Post(Base):
     title = Column(String(96), nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
+
+    author = relationship("User", back_populates="posts")
 
     def __repr__(self):
         return f"Post(id={self.id!r}, title={self.title!r}, created_at:{self.created_at!r}"
@@ -52,7 +56,7 @@ def create_user(session: SessionType, name, password):
 
 
 def create_post(session: SessionType, author: User, title, content):
-    post = Post(author_id=author.id, title=title, content=content)
+    post = Post(author=author, title=title, content=content)
     session.add(post)
     session.commit()
     return post
