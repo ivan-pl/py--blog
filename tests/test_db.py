@@ -1,4 +1,5 @@
-from src.db import Base, Session, SessionType, create_user, create_post, create_comment, User, Post, Comment, \
+from src.db import Base, Session, SessionType, create_user, create_post, create_comment, get_user_posts, User, Post, \
+    Comment, \
     InvalidUserName
 from pytest import fixture, raises
 
@@ -51,3 +52,10 @@ def test_create_comment(session, user_instance, post_instance):
     assert session.query(Comment).filter_by(post=post_instance).one() == comment
     comment2 = create_comment(session, post_instance, author=user_instance, content="comment 2")
     assert session.query(Comment).filter_by(post=post_instance).all() == [comment, comment2]
+
+
+def test_get_user_posts(session, user_instance, post_instance):
+    assert get_user_posts(session, user_instance) == []
+    comment1 = create_comment(session, post_instance, author=user_instance, content="comment 1")
+    comment2 = create_comment(session, post_instance, author=user_instance, content="comment 2")
+    assert get_user_posts(session, user_instance) == [comment1, comment2]

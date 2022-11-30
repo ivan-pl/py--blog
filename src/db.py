@@ -89,6 +89,10 @@ def create_comment(session: SessionType, post, author, content):
     return comment
 
 
+def get_user_posts(session: SessionType, user: User):
+    return session.query(Comment).filter_by(author=user).all()
+
+
 def main():
     Base.metadata.drop_all()
     Base.metadata.create_all()
