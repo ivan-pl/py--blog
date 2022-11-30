@@ -1,0 +1,14 @@
+[run]
+omit = tests/*, main.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    def __repr__
+    def main
+    if __name__ == .__main__.:
+
+ignore_errors = True
+
+[html]
+directory = coverage_html_report
