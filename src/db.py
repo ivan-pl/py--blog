@@ -25,6 +25,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
 
     posts = relationship("Post", back_populates="author")
+    comments = relationship("Comment", back_populates="author")
 
     def __repr__(self):
         return f"User(id={self.id!r}, name={self.name!r}, created_at={self.created_at!r})"
@@ -40,9 +41,31 @@ class Post(Base):
     created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
 
     author = relationship("User", back_populates="posts")
+    comments = relationship("Comment", back_populates="post")
 
     def __repr__(self):
-        return f"Post(id={self.id!r}, title={self.title!r}, created_at:{self.created_at!r}"
+        return f"Post(id={self.id!r}, title={self.title!r}, created_at:{self.created_at!r})"
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow(), server_default=func.now())
+
+    author = relationship("User", back_populates="comments")
+    post = relationship("Post", back_populates="comments")
+
+    def __repr__(self):
+        return f"Comment(id={self.id!r}, author_id={self.author_id!r}, content={self.content!r}, created_at:{self.created_at!r})"
+
+
+def add_record(session: SessionType, record):
+    session.add(record)
+    session.commit()
 
 
 def create_user(session: SessionType, name, password):
@@ -50,16 +73,20 @@ def create_user(session: SessionType, name, password):
     is_user_exists = session.query(User).filter_by(name=name).first()
     if is_user_exists:
         raise InvalidUserName("User with the same name already exists")
-    session.add(user)
-    session.commit()
+    add_record(session, user)
     return user
 
 
 def create_post(session: SessionType, author: User, title, content):
     post = Post(author=author, title=title, content=content)
-    session.add(post)
-    session.commit()
+    add_record(session, post)
     return post
+
+
+def create_comment(session: SessionType, post, author, content):
+    comment = Comment(author=author, post=post, content=content)
+    add_record(session, comment)
+    return comment
 
 
 def main():

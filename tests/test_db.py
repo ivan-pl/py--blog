@@ -1,4 +1,5 @@
-from src.db import Base, Session, SessionType, create_user, create_post, User, Post, InvalidUserName
+from src.db import Base, Session, SessionType, create_user, create_post, create_comment, User, Post, Comment, \
+    InvalidUserName
 from pytest import fixture, raises
 
 
@@ -9,6 +10,18 @@ def session() -> SessionType:
     session: SessionType = Session()
     yield session
     session.close()
+
+
+@fixture
+def user_instance(session) -> User:
+    user = create_user(session, "Ivan", "12345")
+    return user
+
+
+@fixture
+def post_instance(session, user_instance) -> Post:
+    post = create_post(session, author=user_instance, title="Title", content="Some content")
+    return post
 
 
 def test_create_user(session):
@@ -26,8 +39,15 @@ def test_create_user(session):
     assert session.query(User).count() == 2
 
 
-def test_create_post(session):
-    user = create_user(session, "Ivan", "1234")
+def test_create_post(session, user_instance):
     assert session.query(Post).count() == 0
-    post = create_post(session, user, "Title", "Lorem ipsum")
-    assert session.query(Post).filter_by(author=user).one() == post
+    post = create_post(session, user_instance, "Title", "Lorem ipsum")
+    assert session.query(Post).filter_by(author=user_instance).one() == post
+
+
+def test_create_comment(session, user_instance, post_instance):
+    assert session.query(Comment).count() == 0
+    comment = create_comment(session, post_instance, author=user_instance, content="comment 1")
+    assert session.query(Comment).filter_by(post=post_instance).one() == comment
+    comment2 = create_comment(session, post_instance, author=user_instance, content="comment 2")
+    assert session.query(Comment).filter_by(post=post_instance).all() == [comment, comment2]
