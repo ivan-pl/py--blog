@@ -97,6 +97,10 @@ def get_all_posts(session: SessionType):
     return session.query(Post).all()
 
 
+def get_post_comments(session: SessionType, post: Post):
+    return post.comments
+
+
 def main():
     Base.metadata.drop_all()
     Base.metadata.create_all()

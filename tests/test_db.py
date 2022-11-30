@@ -1,6 +1,7 @@
-from src.db import Base, Session, SessionType, create_user, create_post, create_comment, get_user_posts, get_all_posts, \
-    User, Post, \
-    Comment, \
+from src.db import Base, Session, SessionType, \
+    create_user, create_post, create_comment, \
+    get_user_posts, get_all_posts, get_post_comments, \
+    User, Post, Comment, \
     InvalidUserName
 from pytest import fixture, raises
 
@@ -67,3 +68,10 @@ def test_get_all_posts(session, user_instance):
     post1 = create_post(session, author=user_instance, title="Title", content="Some content")
     post2 = create_post(session, author=user_instance, title="Title", content="Some content")
     assert get_all_posts(session) == [post1, post2]
+
+
+def test_get_post_comments(session, post_instance, user_instance):
+    assert get_post_comments(session, post_instance) == []
+    comment1 = create_comment(session, post_instance, author=user_instance, content="comment 1")
+    comment2 = create_comment(session, post_instance, author=user_instance, content="comment 2")
+    assert get_post_comments(session, post_instance) == [comment1, comment2]
